@@ -1,0 +1,1641 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Desafio Final: Logística + LinkedIn + IA | Hub do Estudante</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        linkedin: {
+                            DEFAULT: '#0a66c2',
+                            hover: '#004182',
+                            light: '#e8f0fe',
+                            border: '#cfd8dc'
+                        },
+                        brand: {
+                            gold: '#f59e0b',
+                            emerald: '#10b981',
+                            dark: '#0f172a'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1e293b;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .step-active {
+            border-color: #0a66c2 !important;
+            background-color: #ffffff !important;
+            color: #0a66c2 !important;
+            box-shadow: 0 4px 12px rgba(10, 102, 194, 0.15);
+        }
+
+        .gradient-linkedin {
+            background: linear-gradient(135deg, #0a66c2 0%, #004182 100%);
+        }
+
+        .gradient-gold {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .toast-slide {
+            animation: slideIn 0.3s ease-out forwards;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .timer-warning {
+            animation: pulse-ring 1.5s infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-linkedin rounded-lg p-2 text-white font-bold text-xl flex items-center justify-center w-10 h-10 shadow-md">
+                    <i class="fa-brands fa-linkedin-in"></i>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-lg font-bold text-slate-800 leading-tight">Desafio Final: Logística + LinkedIn + IA</h1>
+                    <p class="text-xs text-slate-500 font-medium hidden sm:block">Prof. Ricardo Horning Carvalho • Turma de Logística</p>
+                </div>
+            </div>
+
+            <!-- Header Score Badge & Export Button -->
+            <div class="flex items-center space-x-3">
+                <div id="header-score-badge" class="flex items-center bg-amber-50 text-amber-800 px-3 py-1.5 rounded-full border border-amber-200 text-xs font-semibold">
+                    <i class="fa-solid fa-trophy text-amber-500 mr-1.5"></i>
+                    <span>Nota Est.: <strong id="score-counter">0.0</strong> / 10.0</span>
+                </div>
+
+                <button onclick="exportGroupSummary()" id="header-export-btn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-semibold px-3 py-2 rounded-lg transition-colors flex items-center space-x-1">
+                    <i class="fa-solid fa-download"></i>
+                    <span class="hidden sm:inline">Baixar Resumo</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Global Progress Bar -->
+        <div class="w-full bg-slate-100 h-1.5">
+            <div id="global-progress-bar" class="bg-linkedin h-1.5 transition-all duration-300" style="width: 10%;"></div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Sidebar Stepper -->
+        <aside class="lg:col-span-3">
+            <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm lg:sticky lg:top-20">
+                <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400">Roteiro do Desafio</h2>
+                    <span id="step-count-badge" class="text-xs font-bold bg-linkedin-light text-linkedin px-2 py-0.5 rounded-full">Etapa 1 de 10</span>
+                </div>
+
+                <!-- Navigation Stepper Buttons -->
+                <nav id="stepper-nav" class="flex lg:flex-col overflow-x-auto lg:overflow-visible space-x-2 lg:space-x-0 lg:space-y-1 pb-2 lg:pb-0 custom-scrollbar">
+                    <button onclick="goToStep(0)" id="nav-btn-0" class="step-nav-btn text-left px-3 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center space-x-2 step-active w-full">
+                        <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-[11px] font-bold shrink-0">0</span>
+                        <span class="truncate">Painel do Grupo</span>
+                    </button>
+                    <button onclick="goToStep(1)" id="nav-btn-1" class="step-nav-btn text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-all whitespace-nowrap flex items-center space-x-2 w-full">
+                        <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-[11px] font-bold shrink-0">1</span>
+                        <span class="truncate">Guia de Fotos</span>
+                    </button>
+                    <button onclick="goToStep(2)" id="nav-btn-2" class="step-nav-btn text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-all whitespace-nowrap flex items-center space-x-2 w-full">
+                        <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-[11px] font-bold shrink-0">2</span>
+                        <span class="truncate">Titular Profissional</span>
+                    </button>
+                    <button onclick="goToStep(3)" id="nav-btn-3" class="step-nav-btn text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-all whitespace-nowrap flex items-center space-x-2 w-full">
+                        <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-[11px] font-bold shrink-0">3</span>
+                        <span class="truncate">Prompt "Sobre" (IA)</span>
+                    </button>
+                    <button onclick="goToStep(4)" id="nav-btn-4" class="step-nav-btn text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-all whitespace-nowrap flex items-center space-x-2 w-full">
+                        <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-[11px] font-bold shrink-0">4</span>
+                        <span class="truncate">Temas de Logística</span>
+                    </button>
+                    <button onclick="goToStep(5)" id="nav-btn-5" class="step-nav-btn text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-all whitespace-nowrap flex items-center space-x-2 w-full">
+                        <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-[11px] font-bold shrink-0">5</span>
+                        <span class="truncate">Prompt da Publicação</span>
+                    </button>
+                    <button onclick="goToStep(6)" id="nav-btn-6" class="step-nav-btn text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-all whitespace-nowrap flex items-center space-x-2 w-full">
+                        <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-[11px] font-bold shrink-0">6</span>
+                        <span class="truncate">Simulador LinkedIn</span>
+                    </button>
+                    <button onclick="goToStep(7)" id="nav-btn-7" class="step-nav-btn text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-all whitespace-nowrap flex items-center space-x-2 w-full">
+                        <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-[11px] font-bold shrink-0">7</span>
+                        <span class="truncate">Pitch & Apresentação</span>
+                    </button>
+                    <button onclick="goToStep(8)" id="nav-btn-8" class="step-nav-btn text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-all whitespace-nowrap flex items-center space-x-2 w-full border border-amber-200 bg-amber-50/50">
+                        <span class="w-5 h-5 rounded-full bg-amber-500 text-white flex items-center justify-center text-[11px] font-bold shrink-0">8</span>
+                        <span class="truncate font-bold text-amber-900">Validador LinkedIn 🔥</span>
+                    </button>
+                    <button onclick="goToStep(9)" id="nav-btn-9" class="step-nav-btn text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-all whitespace-nowrap flex items-center space-x-2 w-full">
+                        <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-[11px] font-bold shrink-0">9</span>
+                        <span class="truncate">Rubrica & Pontuação</span>
+                    </button>
+                    <button onclick="goToStep(10)" id="nav-btn-10" class="step-nav-btn text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-all whitespace-nowrap flex items-center space-x-2 w-full">
+                        <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-[11px] font-bold shrink-0">10</span>
+                        <span class="truncate">Comentários & Conclusão</span>
+                    </button>
+                </nav>
+
+                <!-- Trio Summary Sidebar Card -->
+                <div class="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Trio Cadastrado:</p>
+                    <div id="sidebar-group-names" class="text-xs text-slate-700 font-medium mt-1 space-y-0.5">
+                        <p class="italic text-slate-400 text-[11px]">Nenhum aluno informado</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <section class="lg:col-span-9 space-y-6">
+
+            <!-- STEP 0: Painel do Grupo -->
+            <div id="step-panel-0" class="step-content">
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
+                    <div class="gradient-linkedin rounded-2xl p-6 text-white shadow-md relative overflow-hidden">
+                        <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl">
+                            <i class="fa-solid fa-truck-fast"></i>
+                        </div>
+                        <span class="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Atividade Final</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold mt-2">🚀 LOGÍSTICA + LINKEDIN + IA</h2>
+                        <p class="text-slate-100 text-sm mt-1 max-w-2xl">
+                            Construa a sua presença profissional no LinkedIn, pratique engenharia de prompt com IA e colabore com seu trio para criar uma publicação de alto impacto logístico.
+                        </p>
+                        <div class="mt-4 flex flex-wrap gap-3 text-xs font-medium">
+                            <div class="flex items-center bg-white/10 px-3 py-1.5 rounded-lg">
+                                <i class="fa-solid fa-chalkboard-user mr-2 text-amber-300"></i>
+                                <span>Prof. Ricardo Horning Carvalho</span>
+                            </div>
+                            <div class="flex items-center bg-white/10 px-3 py-1.5 rounded-lg">
+                                <i class="fa-solid fa-users mr-2 text-emerald-300"></i>
+                                <span>Grupos de até 3 Alunos</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rule Highlight Banner -->
+                    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start space-x-3">
+                        <div class="bg-amber-500 text-white p-2 rounded-lg text-lg shrink-0">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-amber-900">A Regra de Ouro do Desafio:</h4>
+                            <p class="text-xs text-amber-800 mt-0.5">
+                                <strong>Cada aluno cria o seu próprio perfil pessoal no LinkedIn e informa o seu link no final da atividade.</strong> A atividade em grupo acontece no desenvolvimento e publicação do post conjunto!
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Group Member Registration Form -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-user-group text-linkedin mr-2"></i>
+                            1. Identificação do Grupo (Até 3 Alunos)
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Aluno 1 (Seu Nome)</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                                        <i class="fa-solid fa-user text-xs"></i>
+                                    </span>
+                                    <input type="text" id="input-student-1" oninput="saveGroupData()" placeholder="Nome completo" class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-linkedin focus:border-linkedin outline-none">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Aluno 2 (Integrante)</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                                        <i class="fa-solid fa-user text-xs"></i>
+                                    </span>
+                                    <input type="text" id="input-student-2" oninput="saveGroupData()" placeholder="Nome completo" class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-linkedin focus:border-linkedin outline-none">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Aluno 3 (Integrante)</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                                        <i class="fa-solid fa-user text-xs"></i>
+                                    </span>
+                                    <input type="text" id="input-student-3" oninput="saveGroupData()" placeholder="Nome completo" class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-linkedin focus:border-linkedin outline-none">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-2">
+                            <span id="save-status-msg" class="text-xs text-emerald-600 font-semibold flex items-center opacity-0 transition-opacity">
+                                <i class="fa-solid fa-circle-check mr-1"></i> Dados salvos automaticamente!
+                            </span>
+                            <button onclick="goToStep(1)" class="bg-linkedin hover:bg-linkedin-hover text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm transition-all flex items-center space-x-2">
+                                <span>Iniciar Guia de Foto</span>
+                                <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 1: Guia de Fotos -->
+            <div id="step-panel-1" class="step-content hidden">
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-camera text-linkedin mr-2"></i>
+                            PASSO 1 — Fotos Profissionais (Individual & Grupo)
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">Sua imagem transmite profissionalismo e credibilidade para recrutadores e para a rede.</p>
+                    </div>
+
+                    <!-- Individual Photo Rules Checklist -->
+                    <div class="bg-slate-50 rounded-2xl p-5 border border-slate-200 space-y-3">
+                        <h3 class="text-sm font-bold text-slate-700 flex items-center">
+                            <i class="fa-solid fa-circle-user text-linkedin mr-2"></i>
+                            Checklist da Foto de Perfil Individual
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                            <label class="flex items-center space-x-2 bg-white p-2.5 rounded-xl border border-slate-200 cursor-pointer hover:border-linkedin">
+                                <input type="checkbox" class="rounded text-linkedin focus:ring-linkedin h-4 w-4" onchange="updateChecklistProgress()">
+                                <span>✔ Rosto visível e sorridente</span>
+                            </label>
+                            <label class="flex items-center space-x-2 bg-white p-2.5 rounded-xl border border-slate-200 cursor-pointer hover:border-linkedin">
+                                <input type="checkbox" class="rounded text-linkedin focus:ring-linkedin h-4 w-4" onchange="updateChecklistProgress()">
+                                <span>✔ Boa iluminação frontal</span>
+                            </label>
+                            <label class="flex items-center space-x-2 bg-white p-2.5 rounded-xl border border-slate-200 cursor-pointer hover:border-linkedin">
+                                <input type="checkbox" class="rounded text-linkedin focus:ring-linkedin h-4 w-4" onchange="updateChecklistProgress()">
+                                <span>✔ Fundo limpo ou organizado</span>
+                            </label>
+                            <label class="flex items-center space-x-2 bg-white p-2.5 rounded-xl border border-slate-200 cursor-pointer hover:border-linkedin">
+                                <input type="checkbox" class="rounded text-linkedin focus:ring-linkedin h-4 w-4" onchange="updateChecklistProgress()">
+                                <span>✔ Vestimenta adequada ao ambiente</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Group Photo Interactive Card -->
+                    <div class="border border-linkedin/30 bg-linkedin-light/30 rounded-2xl p-5 space-y-4">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-800 flex items-center">
+                                    <i class="fa-solid fa-users text-linkedin mr-2"></i>
+                                    📸 Foto Oficial do Trio para o Post
+                                </h3>
+                                <p class="text-xs text-slate-600 mt-1">
+                                    A foto do post deve transmitir: <strong>APRENDIZADO + PROFISSIONALISMO + EQUIPE</strong>.
+                                </p>
+                            </div>
+                            <span class="bg-linkedin text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">Obrigatório</span>
+                        </div>
+
+                        <!-- Recommendations list -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-600">
+                            <div class="bg-white p-2.5 rounded-lg border border-slate-200 flex items-center space-x-2">
+                                <i class="fa-solid fa-location-dot text-emerald-500"></i>
+                                <span>Tirem a foto na sala, pátio, laboratório ou área do curso.</span>
+                            </div>
+                            <div class="bg-white p-2.5 rounded-lg border border-slate-200 flex items-center space-x-2">
+                                <i class="fa-solid fa-circle-exclamation text-amber-500"></i>
+                                <span>Evitem expor documentos sigilosos, senhas ou dados sensíveis.</span>
+                            </div>
+                        </div>
+
+                        <!-- Photo Simulator / Upload -->
+                        <div class="bg-white rounded-xl border-2 border-dashed border-slate-300 p-4 text-center">
+                            <div id="group-photo-preview-container" class="hidden">
+                                <img id="group-photo-img" src="" alt="Foto do Grupo" class="max-h-60 mx-auto rounded-lg shadow-sm border border-slate-200 object-cover">
+                                <p class="text-xs text-emerald-600 font-semibold mt-2">
+                                    <i class="fa-solid fa-circle-check"></i> Foto carregada com sucesso!
+                                </p>
+                            </div>
+
+                            <div id="group-photo-upload-box" class="space-y-2">
+                                <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400"></i>
+                                <p class="text-xs font-semibold text-slate-700">Simulador de Upload da Foto do Grupo</p>
+                                <p class="text-[11px] text-slate-400">Selecione uma foto do seu dispositivo para testar na prévia do LinkedIn</p>
+                                <input type="file" id="group-photo-input" accept="image/*" onchange="handleGroupPhotoUpload(event)" class="hidden">
+                                <button onclick="document.getElementById('group-photo-input').click()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2 rounded-lg transition-colors">
+                                    Escolher Imagem do Trio
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-2">
+                        <button onclick="goToStep(0)" class="text-slate-600 text-sm font-semibold hover:text-slate-800">
+                            ← Voltar
+                        </button>
+                        <button onclick="goToStep(2)" class="bg-linkedin hover:bg-linkedin-hover text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm transition-all flex items-center space-x-2">
+                            <span>Próximo: Titular Profissional</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 2: Construtor de Titular -->
+            <div id="step-panel-2" class="step-content hidden">
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-id-card text-linkedin mr-2"></i>
+                            PASSO 2 — Construtor de Titular do LinkedIn
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">O título aparece logo abaixo do seu nome. Não coloque apenas "Estudante"!</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">1. Qual é a sua situação atual?</label>
+                            <select id="headline-role-select" onchange="generateHeadlineOptions()" class="w-full text-xs border border-slate-300 rounded-xl p-2.5 bg-white font-medium focus:ring-2 focus:ring-linkedin outline-none">
+                                <option value="estudante">Estudante de Logística</option>
+                                <option value="profissional">Profissional em Transição / Atuação na Área</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">2. Selecione suas Sub-áreas de Maior Interesse:</label>
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <label class="flex items-center space-x-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                                    <input type="checkbox" value="Armazenagem" onchange="generateHeadlineOptions()" class="headline-area-cb rounded text-linkedin">
+                                    <span>Armazenagem</span>
+                                </label>
+                                <label class="flex items-center space-x-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                                    <input type="checkbox" value="Estoque" onchange="generateHeadlineOptions()" checked class="headline-area-cb rounded text-linkedin">
+                                    <span>Estoque</span>
+                                </label>
+                                <label class="flex items-center space-x-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                                    <input type="checkbox" value="Transporte" onchange="generateHeadlineOptions()" checked class="headline-area-cb rounded text-linkedin">
+                                    <span>Transporte</span>
+                                </label>
+                                <label class="flex items-center space-x-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                                    <input type="checkbox" value="Operações" onchange="generateHeadlineOptions()" class="headline-area-cb rounded text-linkedin">
+                                    <span>Operações</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <h3 class="text-sm font-bold text-slate-800">Opções de Títulos Profissionais Gerados:</h3>
+                        <div id="headline-results-container" class="space-y-2">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-200 text-blue-900 rounded-xl p-3 text-xs flex items-center space-x-2">
+                        <i class="fa-solid fa-circle-info text-linkedin text-base shrink-0"></i>
+                        <span><strong>Lembre-se:</strong> Não invente experiência profissional! Apresente quem você realmente é com orgulho de sua formação.</span>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-2">
+                        <button onclick="goToStep(1)" class="text-slate-600 text-sm font-semibold hover:text-slate-800">
+                            ← Voltar
+                        </button>
+                        <button onclick="goToStep(3)" class="bg-linkedin hover:bg-linkedin-hover text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm transition-all flex items-center space-x-2">
+                            <span>Próximo: Gerador do "Sobre"</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 3: Gerador do "Sobre" -->
+            <div id="step-panel-3" class="step-content hidden">
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-wand-magic-sparkles text-linkedin mr-2"></i>
+                            PASSO 3 — Gerador de Prompt para a Seção "Sobre"
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">Crie um prompt sob medida para a IA estruturar sua apresentação profissional.</p>
+                    </div>
+
+                    <div class="bg-slate-900 text-white rounded-xl p-4 flex items-center justify-between shadow-md">
+                        <div class="flex items-center space-x-3">
+                            <div class="bg-amber-400 text-slate-900 p-2 rounded-lg text-lg">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-amber-300 uppercase tracking-wider">Uso Consciente da IA</h4>
+                                <p class="text-xs text-slate-200">"A IA ajuda a escrever. Mas o profissional fornece a verdade."</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Áreas de Maior Interesse na Logística:</label>
+                            <input type="text" id="about-interests-input" oninput="buildAboutPrompt()" placeholder="Ex: Gestão de estoque, armazenagem inteligente e tecnologia na distribuição" class="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-linkedin outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Suas Principais Características / Qualidades:</label>
+                            <input type="text" id="about-qualities-input" oninput="buildAboutPrompt()" placeholder="Ex: Organizado, focado em resultados, facilidade em trabalhar em equipe e proativo" class="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-linkedin outline-none">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Prompt Gerado para Copiar e Colar na IA (ChatGPT / Gemini / Claude):</h3>
+                            <button onclick="copyToClipboard('about-prompt-box')" class="bg-linkedin text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-linkedin-hover transition-colors flex items-center space-x-1">
+                                <i class="fa-solid fa-copy text-xs"></i>
+                                <span>Copiar Prompt</span>
+                            </button>
+                        </div>
+                        <div id="about-prompt-box" class="bg-slate-900 text-slate-100 p-4 rounded-xl text-xs font-mono leading-relaxed select-all">
+                            <!-- JS Prompt text insertion -->
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-2">
+                        <button onclick="goToStep(2)" class="text-slate-600 text-sm font-semibold hover:text-slate-800">
+                            ← Voltar
+                        </button>
+                        <button onclick="goToStep(4)" class="bg-linkedin hover:bg-linkedin-hover text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm transition-all flex items-center space-x-2">
+                            <span>Próximo: Escolher Tema de Logística</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 4: Temas de Logística -->
+            <div id="step-panel-4" class="step-content hidden">
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-boxes-packing text-linkedin mr-2"></i>
+                            PASSO 4 — Escolha o Tema do Grupo
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">Clique em um dos 10 temas de logística abaixo para definir o foco do trabalho do trio.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="themes-grid-container">
+                        <!-- Theme Cards populated by JS -->
+                    </div>
+
+                    <div id="selected-theme-banner" class="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="bg-emerald-500 text-white rounded-lg p-2 text-lg">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] uppercase font-bold text-emerald-700">Tema Selecionado pelo Trio:</span>
+                                <h4 id="selected-theme-title" class="text-sm font-bold text-emerald-950">---</h4>
+                                <p id="selected-theme-question" class="text-xs text-emerald-800 italic mt-0.5">---</p>
+                            </div>
+                        </div>
+                        <button onclick="goToStep(5)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3.5 py-2 rounded-lg transition-colors">
+                            Usar Este Tema →
+                        </button>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-2">
+                        <button onclick="goToStep(3)" class="text-slate-600 text-sm font-semibold hover:text-slate-800">
+                            ← Voltar
+                        </button>
+                        <button onclick="goToStep(5)" class="bg-linkedin hover:bg-linkedin-hover text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm transition-all flex items-center space-x-2">
+                            <span>Próximo: Criar Post com IA</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 5: Prompt do Post -->
+            <div id="step-panel-5" class="step-content hidden">
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-pen-to-square text-linkedin mr-2"></i>
+                            PASSO 5 — Construção do Prompt do Post
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">Forneça os insumos reais do grupo para que a IA ajude a redigir o texto final.</p>
+                    </div>
+
+                    <div class="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">1. Tema Escolhido:</label>
+                            <input type="text" id="post-theme-input" oninput="buildPostPrompt()" placeholder="Ex: Gestão de Estoque" class="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-linkedin outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">2. O que o grupo aprendeu sobre o tema?</label>
+                            <textarea id="post-learned-input" oninput="buildPostPrompt()" rows="2" placeholder="Ex: Aprendemos que a acuracidade do estoque reduz custos operacionais, evita ruptura na entrega e aumenta a satisfação dos clientes." class="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-linkedin outline-none"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">3. Qual a opinião / insight do grupo?</label>
+                            <textarea id="post-opinion-input" oninput="buildPostPrompt()" rows="2" placeholder="Ex: Entendemos que controlar estoque não é apenas contar produtos, mas sim tomar decisões estratégicas para o sucesso do negócio." class="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-linkedin outline-none"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">4. Público-alvo que desejam alcançar:</label>
+                            <input type="text" id="post-audience-input" oninput="buildPostPrompt()" value="Estudantes, recrutadores e profissionais da área de logística" class="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-linkedin outline-none">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Prompt de Engenharia de Post para IA:</h3>
+                            <button onclick="copyToClipboard('post-prompt-box')" class="bg-linkedin text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-linkedin-hover transition-colors flex items-center space-x-1">
+                                <i class="fa-solid fa-copy text-xs"></i>
+                                <span>Copiar Prompt da Publicação</span>
+                            </button>
+                        </div>
+                        <div id="post-prompt-box" class="bg-slate-900 text-slate-100 p-4 rounded-xl text-xs font-mono leading-relaxed select-all">
+                            <!-- JS Prompt text insertion -->
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-2">
+                        <button onclick="goToStep(4)" class="text-slate-600 text-sm font-semibold hover:text-slate-800">
+                            ← Voltar
+                        </button>
+                        <button onclick="goToStep(6)" class="bg-linkedin hover:bg-linkedin-hover text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm transition-all flex items-center space-x-2">
+                            <span>Próximo: Simulador do LinkedIn</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 6: Simulador de Publicação -->
+            <div id="step-panel-6" class="step-content hidden">
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-desktop text-linkedin mr-2"></i>
+                            PASSO 6 — Simulador de Publicação do LinkedIn
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">Cole aqui o texto gerado pela IA e revisado pelo grupo para ver a prévia em tempo real!</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Texto Final Revisado pelo Trio:</label>
+                        <textarea id="final-post-text-input" oninput="updateLinkedInPreview()" rows="5" placeholder="Cole aqui a publicação produzida com apoio da IA..." class="w-full text-xs p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-linkedin outline-none font-sans"></textarea>
+                    </div>
+
+                    <!-- Live Feed Simulation Card -->
+                    <div class="border border-slate-300 rounded-2xl bg-white shadow-md overflow-hidden max-w-xl mx-auto">
+                        <div class="p-4 flex items-center justify-between border-b border-slate-100">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-11 h-11 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 font-bold border border-slate-300 shrink-0">
+                                    <i class="fa-solid fa-user-group text-linkedin text-sm"></i>
+                                </div>
+                                <div>
+                                    <h4 id="preview-author-names" class="text-xs font-bold text-slate-900 leading-snug">
+                                        Aluno 1, Aluno 2 e Aluno 3
+                                    </h4>
+                                    <p class="text-[11px] text-slate-500 leading-tight">Estudantes de Logística • Formação Profissional</p>
+                                    <p class="text-[10px] text-slate-400 mt-0.5 flex items-center">
+                                        <span>Agora</span>
+                                        <span class="mx-1">•</span>
+                                        <i class="fa-solid fa-earth-americas"></i>
+                                    </p>
+                                </div>
+                            </div>
+                            <button class="text-slate-400 hover:text-slate-600">
+                                <i class="fa-solid fa-ellipsis"></i>
+                            </button>
+                        </div>
+
+                        <div class="p-4 text-xs text-slate-800 space-y-3">
+                            <div id="preview-post-body" class="whitespace-pre-wrap leading-relaxed">
+                                Você sabia que a organização logística pode transformar a rentabilidade de uma empresa?
+                            </div>
+
+                            <div class="bg-linkedin-light/50 border border-linkedin/20 rounded-lg p-2 text-[11px] text-linkedin font-semibold flex items-center">
+                                <i class="fa-solid fa-at mr-1.5 text-xs"></i>
+                                <span>Marcação obrigatória: <strong class="text-linkedin-hover">@Ricardo Horning Carvalho</strong></span>
+                            </div>
+
+                            <div id="preview-hashtags" class="text-linkedin font-medium flex flex-wrap gap-1 text-[11px]">
+                                <span>#Logística</span>
+                                <span>#Educação</span>
+                                <span>#Logistica</span>
+                                <span>#DesenvolvimentoProfissional</span>
+                                <span>#Carreira</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-100 border-t border-b border-slate-200 min-h-[160px] flex items-center justify-center relative overflow-hidden">
+                            <img id="preview-group-photo" src="" class="w-full h-auto object-cover max-h-72 hidden" alt="Foto do Grupo">
+                            <div id="preview-photo-placeholder" class="text-center p-6">
+                                <i class="fa-solid fa-image text-3xl text-slate-300"></i>
+                                <p class="text-xs font-semibold text-slate-500 mt-1">Sua foto do grupo aparecerá aqui</p>
+                                <p class="text-[10px] text-slate-400">(Carregue sua foto na Etapa 1)</p>
+                            </div>
+                        </div>
+
+                        <div class="px-4 py-2 border-t border-slate-100 flex items-center justify-between text-slate-500 text-xs font-semibold">
+                            <button class="flex items-center space-x-1.5 hover:bg-slate-100 p-2 rounded-lg">
+                                <i class="fa-regular fa-thumbs-up"></i>
+                                <span>Gostei</span>
+                            </button>
+                            <button class="flex items-center space-x-1.5 hover:bg-slate-100 p-2 rounded-lg">
+                                <i class="fa-regular fa-comment"></i>
+                                <span>Comentar</span>
+                            </button>
+                            <button class="flex items-center space-x-1.5 hover:bg-slate-100 p-2 rounded-lg">
+                                <i class="fa-solid fa-share-nodes"></i>
+                                <span>Compartilhar</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button onclick="copyFullPostText()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center space-x-2">
+                            <i class="fa-solid fa-copy"></i>
+                            <span>Copiar Texto Completo com Hashtags & Marcação</span>
+                        </button>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-2">
+                        <button onclick="goToStep(5)" class="text-slate-600 text-sm font-semibold hover:text-slate-800">
+                            ← Voltar
+                        </button>
+                        <button onclick="goToStep(7)" class="bg-linkedin hover:bg-linkedin-hover text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm transition-all flex items-center space-x-2">
+                            <span>Próximo: Pitch & Apresentação</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 7: Pitch & Apresentação -->
+            <div id="step-panel-7" class="step-content hidden">
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-stopwatch text-linkedin mr-2"></i>
+                            PASSO 7 — Desafio Extra & Cronômetro de Pitch
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">LinkedIn é comunicação profissional de alto impacto. Defenda a sua publicação!</p>
+                    </div>
+
+                    <div class="bg-amber-50 border-2 border-amber-300 rounded-2xl p-5 space-y-4 shadow-sm">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <span class="bg-amber-500 text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wide">Desafio Extra 🔥</span>
+                                <h3 class="text-base font-extrabold text-amber-950 mt-1">"POR QUE ALGUÉM DEVERIA PARAR PARA LER NOSSA PUBLICAÇÃO?"</h3>
+                                <p class="text-xs text-amber-800">O trio tem exatamente 30 segundos para convencer a turma e o professor!</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-4 border border-amber-200 text-center flex flex-col items-center justify-center space-y-2">
+                            <div id="timer-30s-display" class="text-5xl font-black font-mono text-slate-800 tracking-wider">
+                                00:30
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="startTimer30()" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors">
+                                    <i class="fa-solid fa-play mr-1"></i> Iniciar Pitch (30s)
+                                </button>
+                                <button onclick="pauseTimer30()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold px-3 py-2 rounded-lg transition-colors">
+                                    <i class="fa-solid fa-pause"></i>
+                                </button>
+                                <button onclick="resetTimer30()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold px-3 py-2 rounded-lg transition-colors">
+                                    <i class="fa-solid fa-rotate-left"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 rounded-2xl p-5 border border-slate-200 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-slate-800 flex items-center">
+                                <i class="fa-solid fa-person-chalkboard text-linkedin mr-2"></i>
+                                Roteiro da Miniapresentação (Máximo: 2 minutos)
+                            </h3>
+                            <div id="timer-2m-display" class="text-lg font-bold font-mono text-slate-700 bg-white px-3 py-1 rounded-lg border border-slate-200">
+                                02:00
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-5 gap-2 text-xs">
+                            <div class="bg-white p-3 rounded-xl border border-slate-200">
+                                <span class="bg-linkedin text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold mb-1">1</span>
+                                <p class="font-bold text-slate-800">Tema</p>
+                                <p class="text-slate-500 text-[11px]">Nosso tema é...</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-xl border border-slate-200">
+                                <span class="bg-linkedin text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold mb-1">2</span>
+                                <p class="font-bold text-slate-800">Motivo</p>
+                                <p class="text-slate-500 text-[11px]">Escolhemos porque...</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-xl border border-slate-200">
+                                <span class="bg-linkedin text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold mb-1">3</span>
+                                <p class="font-bold text-slate-800">Conteúdo</p>
+                                <p class="text-slate-500 text-[11px]">Publicação fala de...</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-xl border border-slate-200">
+                                <span class="bg-linkedin text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold mb-1">4</span>
+                                <p class="font-bold text-slate-800">Foto</p>
+                                <p class="text-slate-500 text-[11px]">Foto representa...</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-xl border border-slate-200">
+                                <span class="bg-linkedin text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold mb-1">5</span>
+                                <p class="font-bold text-slate-800">Reflexão</p>
+                                <p class="text-slate-500 text-[11px]">Queremos que pensem...</p>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end space-x-2">
+                            <button onclick="startTimer2m()" class="bg-linkedin hover:bg-linkedin-hover text-white text-xs font-bold px-3.5 py-1.5 rounded-lg transition-colors">
+                                Iniciar Apresentação (2 min)
+                            </button>
+                            <button onclick="resetTimer2m()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors">
+                                Reiniciar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-2">
+                        <button onclick="goToStep(6)" class="text-slate-600 text-sm font-semibold hover:text-slate-800">
+                            ← Voltar
+                        </button>
+                        <button onclick="goToStep(8)" class="bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow-md transition-all flex items-center space-x-2">
+                            <span>Próximo: Validador dos Perfis do LinkedIn 🔥</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 8: Validador Automático dos Perfis do LinkedIn -->
+            <div id="step-panel-8" class="step-content hidden">
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <span class="bg-amber-100 text-amber-800 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-amber-200">
+                                Requisito Final de Validação
+                            </span>
+                            <span class="text-xs text-slate-400 font-semibold">Regra Nota 10 🎓</span>
+                        </div>
+                        <h2 class="text-2xl font-black text-slate-800 flex items-center mt-2">
+                            <i class="fa-brands fa-linkedin text-linkedin mr-2.5 text-3xl"></i>
+                            PASSO 8 — Envio dos Perfis Individuais & Validador Automático
+                        </h2>
+                        <p class="text-xs text-slate-600 mt-1">
+                            Para garantir a pontuação máxima e certificar a conclusão da atividade, insira abaixo a URL oficial do perfil do LinkedIn dos 3 alunos do trio.
+                        </p>
+                    </div>
+
+                    <!-- Instruction Card -->
+                    <div class="bg-slate-900 text-white rounded-2xl p-4 flex items-start space-x-3 shadow-md">
+                        <div class="bg-amber-400 text-slate-900 p-2.5 rounded-xl text-xl font-bold shrink-0">
+                            <i class="fa-solid fa-link"></i>
+                        </div>
+                        <div class="text-xs space-y-1">
+                            <h4 class="font-bold text-amber-300">Como obter o link do seu perfil?</h4>
+                            <p class="text-slate-200">
+                                Acesse seu perfil no LinkedIn pelo navegador ou app, clique em <strong>"Ver Perfil"</strong> e copie o link da barra de endereço (exemplo: <code class="bg-slate-800 px-1.5 py-0.5 rounded text-amber-200">https://www.linkedin.com/in/seu-nome</code>).
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 3 Profile Link Validation Input Fields -->
+                    <div class="space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                        <!-- Student 1 Link -->
+                        <div class="space-y-1.5">
+                            <div class="flex justify-between items-center text-xs">
+                                <label class="font-bold text-slate-800 flex items-center">
+                                    <span class="w-5 h-5 rounded-full bg-linkedin text-white flex items-center justify-center text-[10px] mr-1.5">1</span>
+                                    Link do LinkedIn — <span id="label-student-name-1" class="ml-1 text-linkedin font-extrabold">Aluno 1</span>
+                                </label>
+                                <span id="val-badge-1" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600">
+                                    Aguardando link...
+                                </span>
+                            </div>
+                            <div class="relative">
+                                <input type="url" id="link-student-1" oninput="validateLinkedInProfiles()" placeholder="https://www.linkedin.com/in/nome-do-aluno-1" class="w-full pl-9 pr-10 py-2.5 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-linkedin outline-none font-mono">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                                    <i class="fa-brands fa-linkedin"></i>
+                                </span>
+                                <span id="val-icon-1" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-300">
+                                    <i class="fa-solid fa-circle-question"></i>
+                                </span>
+                            </div>
+                            <p id="val-msg-1" class="text-[11px] text-slate-500 font-medium pl-1"></p>
+                        </div>
+
+                        <!-- Student 2 Link -->
+                        <div class="space-y-1.5">
+                            <div class="flex justify-between items-center text-xs">
+                                <label class="font-bold text-slate-800 flex items-center">
+                                    <span class="w-5 h-5 rounded-full bg-linkedin text-white flex items-center justify-center text-[10px] mr-1.5">2</span>
+                                    Link do LinkedIn — <span id="label-student-name-2" class="ml-1 text-linkedin font-extrabold">Aluno 2</span>
+                                </label>
+                                <span id="val-badge-2" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600">
+                                    Aguardando link...
+                                </span>
+                            </div>
+                            <div class="relative">
+                                <input type="url" id="link-student-2" oninput="validateLinkedInProfiles()" placeholder="https://www.linkedin.com/in/nome-do-aluno-2" class="w-full pl-9 pr-10 py-2.5 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-linkedin outline-none font-mono">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                                    <i class="fa-brands fa-linkedin"></i>
+                                </span>
+                                <span id="val-icon-2" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-300">
+                                    <i class="fa-solid fa-circle-question"></i>
+                                </span>
+                            </div>
+                            <p id="val-msg-2" class="text-[11px] text-slate-500 font-medium pl-1"></p>
+                        </div>
+
+                        <!-- Student 3 Link -->
+                        <div class="space-y-1.5">
+                            <div class="flex justify-between items-center text-xs">
+                                <label class="font-bold text-slate-800 flex items-center">
+                                    <span class="w-5 h-5 rounded-full bg-linkedin text-white flex items-center justify-center text-[10px] mr-1.5">3</span>
+                                    Link do LinkedIn — <span id="label-student-name-3" class="ml-1 text-linkedin font-extrabold">Aluno 3</span>
+                                </label>
+                                <span id="val-badge-3" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600">
+                                    Aguardando link...
+                                </span>
+                            </div>
+                            <div class="relative">
+                                <input type="url" id="link-student-3" oninput="validateLinkedInProfiles()" placeholder="https://www.linkedin.com/in/nome-do-aluno-3" class="w-full pl-9 pr-10 py-2.5 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-linkedin outline-none font-mono">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                                    <i class="fa-brands fa-linkedin"></i>
+                                </span>
+                                <span id="val-icon-3" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-300">
+                                    <i class="fa-solid fa-circle-question"></i>
+                                </span>
+                            </div>
+                            <p id="val-msg-3" class="text-[11px] text-slate-500 font-medium pl-1"></p>
+                        </div>
+                    </div>
+
+                    <!-- Grade 10 Celebration Banner / Certificate Container -->
+                    <div id="grade10-cert-card" class="hidden gradient-gold rounded-2xl p-6 text-slate-950 shadow-xl border-2 border-amber-300 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-14 h-14 bg-slate-950 text-amber-400 rounded-2xl flex items-center justify-center text-2xl shadow-md border border-amber-300">
+                                    <i class="fa-solid fa-award"></i>
+                                </div>
+                                <div>
+                                    <span class="bg-slate-950 text-amber-300 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                                        DESAFIO CONCLUÍDO COM EXCELÊNCIA
+                                    </span>
+                                    <h3 class="text-xl font-black text-slate-950 mt-1">
+                                        PARABÉNS! NOTA 10,0 CONCEDIDA 🎉
+                                    </h3>
+                                    <p class="text-xs font-semibold text-slate-900 mt-0.5">
+                                        Todos os 3 perfis do LinkedIn foram validados com sucesso!
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-right hidden sm:block">
+                                <span class="text-4xl font-black text-slate-950">10,0</span>
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-900">Nota Máxima</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white/80 backdrop-blur-sm p-3.5 rounded-xl border border-amber-200/50 text-xs text-slate-900 leading-relaxed font-medium">
+                            <p>
+                                <i class="fa-solid fa-check-double text-emerald-700 mr-1.5"></i>
+                                <strong>Status Final:</strong> O trio cumpriu com rigor pedagógico a criação dos perfis, a postagem com IA, a fotografia estratégica e o cadastramento das URLs oficiais do LinkedIn.
+                            </p>
+                        </div>
+
+                        <div class="flex flex-wrap gap-3 justify-end pt-2">
+                            <button onclick="triggerConfettiEffect()" class="bg-slate-950 hover:bg-slate-800 text-amber-300 text-xs font-bold px-4 py-2.5 rounded-xl shadow-md transition-all flex items-center space-x-2">
+                                <i class="fa-solid fa-champagne-glasses"></i>
+                                <span>Soltar Confetes 🎉</span>
+                            </button>
+                            <button onclick="exportGroupSummary()" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-md transition-all flex items-center space-x-2">
+                                <i class="fa-solid fa-file-arrow-down"></i>
+                                <span>Baixar Relatório Oficial com URLs (.TXT)</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Footer -->
+                    <div class="flex justify-between items-center pt-2">
+                        <button onclick="goToStep(7)" class="text-slate-600 text-sm font-semibold hover:text-slate-800">
+                            ← Voltar
+                        </button>
+                        <button onclick="goToStep(9)" class="bg-linkedin hover:bg-linkedin-hover text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm transition-all flex items-center space-x-2">
+                            <span>Próximo: Rubrica & Pontuação</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 9: Rubrica Completa & Autoavaliação -->
+            <div id="step-panel-9" class="step-content hidden">
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-calculator text-linkedin mr-2"></i>
+                            PASSO 9 — Rubrica & Calculadora de Pontuação
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">Acompanhe os critérios do Desafio Final e veja sua evolução no curso.</p>
+                    </div>
+
+                    <!-- Live Score Banner -->
+                    <div class="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg">
+                        <div>
+                            <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Pontuação Atual do Grupo</span>
+                            <div class="flex items-baseline space-x-2 mt-1">
+                                <span id="rubric-total-score" class="text-4xl font-extrabold text-white">0.0</span>
+                                <span class="text-sm text-slate-400">/ 10.0 Pontos</span>
+                            </div>
+                            <p id="rubric-rank-badge" class="text-xs font-semibold text-emerald-400 mt-1">
+                                <i class="fa-solid fa-seedling"></i> Em Progresso
+                            </p>
+                        </div>
+
+                        <button onclick="triggerConfettiEffect()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center space-x-2 shrink-0">
+                            <i class="fa-solid fa-champagne-glasses"></i>
+                            <span>Celebrar 🎉</span>
+                        </button>
+                    </div>
+
+                    <!-- Interactive Checklist Rubric -->
+                    <div class="space-y-2">
+                        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Detalhamento dos Critérios Pedagogicos:</h3>
+
+                        <div class="space-y-2 text-xs" id="rubric-items-list">
+                            <!-- Items populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-2">
+                        <button onclick="goToStep(8)" class="text-slate-600 text-sm font-semibold hover:text-slate-800">
+                            ← Voltar
+                        </button>
+                        <button onclick="goToStep(10)" class="bg-linkedin hover:bg-linkedin-hover text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm transition-all flex items-center space-x-2">
+                            <span>Próximo: Comentários & Encerramento</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 10: Comentários & Conclusão -->
+            <div id="step-panel-10" class="step-content hidden">
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-comments text-linkedin mr-2"></i>
+                            PASSO 10 — Engajamento Real & Comentário Profissional
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">A presença digital é construída com interações valiosas entre profissionais da rede.</p>
+                    </div>
+
+                    <div class="bg-linkedin-light/40 border border-linkedin/30 rounded-2xl p-5 space-y-3">
+                        <h3 class="text-sm font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-heart-circle-check text-linkedin mr-2"></i>
+                            Desafio de Encerramento: Comentário Cruzado
+                        </h3>
+                        <p class="text-xs text-slate-700 leading-relaxed">
+                            Após a publicação do seu grupo, cada integrante deve acessar o LinkedIn, escolher a publicação de <strong>outro grupo da turma</strong> e fazer um comentário construtivo e profissional.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-red-50 border border-red-200 rounded-xl p-4 space-y-2">
+                            <div class="flex items-center text-red-700 font-bold text-xs">
+                                <i class="fa-solid fa-circle-xmark mr-1.5"></i> NÃO FAÇA ISSO (Superficial):
+                            </div>
+                            <p class="text-xs text-slate-700 italic bg-white p-2.5 rounded-lg border border-red-100">
+                                "Parabéns!" ou "Muito bom post!"
+                            </p>
+                        </div>
+
+                        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-2">
+                            <div class="flex items-center text-emerald-700 font-bold text-xs">
+                                <i class="fa-solid fa-circle-check mr-1.5"></i> EXEMPLO PROFISSIONAL (Recomendado):
+                            </div>
+                            <p class="text-xs text-slate-700 bg-white p-2.5 rounded-lg border border-emerald-100 leading-relaxed">
+                                "Gostei muito da relação que vocês fizeram entre a organização do estoque e a produtividade da equipe. É um desafio real que impacta o Lead Time de toda a operação!"
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="gradient-linkedin rounded-2xl p-6 text-white text-center space-y-3 shadow-lg">
+                        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto text-xl">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                        </div>
+                        <h3 class="text-lg font-bold">Mensagem Final de Encerramento</h3>
+                        <p class="text-xs sm:text-sm text-slate-100 max-w-xl mx-auto leading-relaxed">
+                            "Hoje vocês não fizeram apenas uma atividade de curso. Vocês deram um primeiro passo concreto e estratégico para construir a presença profissional de vocês no mercado da Logística!"
+                        </p>
+                        <p class="text-xs text-amber-300 font-semibold">— Prof. Ricardo Horning Carvalho</p>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-2">
+                        <button onclick="goToStep(9)" class="text-slate-600 text-sm font-semibold hover:text-slate-800">
+                            ← Voltar
+                        </button>
+                        <button onclick="exportGroupSummary()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs px-5 py-2.5 rounded-xl shadow-md transition-all flex items-center space-x-2">
+                            <i class="fa-solid fa-download"></i>
+                            <span>Baixar Relatório Final Completo em TXT</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 py-4 mt-8 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <p>© 2026 • Desafio Final de Logística, LinkedIn e IA • Prof. Ricardo Horning Carvalho</p>
+            <p class="font-medium text-slate-600">Hub Interativo com Validador Automático</p>
+        </div>
+    </footer>
+
+    <!-- Global Toast Notifications Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
+    <script>
+        /* Global Application State */
+        let currentStep = 0;
+        let groupData = {
+            student1: '',
+            student2: '',
+            student3: '',
+            link1: '',
+            link2: '',
+            link3: ''
+        };
+        let validatedLinks = {
+            link1: false,
+            link2: false,
+            link3: false
+        };
+
+        let selectedTheme = null;
+        let uploadedGroupPhotoUrl = '';
+        let timer30Interval = null;
+        let timer30Time = 30;
+        let timer2mInterval = null;
+        let timer2mTime = 120;
+
+        // 10 Logistics Themes
+        const logisticsThemes = [
+            { id: 1, icon: 'fa-boxes-stacked', title: 'Estoque', question: 'Por que controlar estoque é importante?' },
+            { id: 2, icon: 'fa-truck-ramp-box', title: 'Transporte', question: 'O que pode fazer uma entrega atrasar?' },
+            { id: 3, icon: 'fa-warehouse', title: 'Armazenagem', question: 'Um armazém organizado faz diferença?' },
+            { id: 4, icon: 'fa-magnifying-glass-location', title: 'Picking', question: 'Quanto tempo uma empresa perde procurando produtos?' },
+            { id: 5, icon: 'fa-stopwatch', title: 'Lead Time', question: 'Esperar também faz parte do tempo de um processo?' },
+            { id: 6, icon: 'fa-microchip', title: 'Tecnologia', question: 'Como a tecnologia pode ajudar a logística?' },
+            { id: 7, icon: 'fa-user-tie', title: 'Profissão', question: 'O que faz um bom profissional de logística?' },
+            { id: 8, icon: 'fa-leaf', title: 'Sustentabilidade', question: 'Onde a logística pode reduzir desperdícios?' },
+            { id: 9, icon: 'fa-robot', title: 'Inteligência Artificial', question: 'Como a IA pode apoiar o profissional de logística?' },
+            { id: 10, icon: 'fa-bolt', title: 'Metodologias Ágeis', question: 'O que a logística pode aprender com metodologias ágeis?' }
+        ];
+
+        // Rubric Criteria (Total 10.0 points)
+        const rubricCriteria = [
+            { id: 0, title: 'Perfil individual criado e link validado (3 alunos)', pts: 2.0 },
+            { id: 1, title: 'Apresentação profissional ("Sobre")', pts: 1.0 },
+            { id: 2, title: 'Tema logístico bem definido', pts: 1.0 },
+            { id: 3, title: 'Qualidade do texto da publicação com IA', pts: 2.0 },
+            { id: 4, title: 'Uso consciente e ético da IA', pts: 1.0 },
+            { id: 5, title: 'Foto estratégica do trio', pts: 1.0 },
+            { id: 6, title: 'Hashtags e marcação @Ricardo Horning Carvalho', pts: 1.0 },
+            { id: 7, title: 'Participação / Pitch de 30 segundos e Apresentação', pts: 1.0 }
+        ];
+
+        let rubricState = new Array(rubricCriteria.length).fill(false);
+
+        window.onload = function() {
+            loadGroupData();
+            renderThemeCards();
+            generateHeadlineOptions();
+            buildAboutPrompt();
+            buildPostPrompt();
+            renderRubricList();
+            updateGlobalProgress();
+        };
+
+        function saveGroupData() {
+            groupData.student1 = document.getElementById('input-student-1').value;
+            groupData.student2 = document.getElementById('input-student-2').value;
+            groupData.student3 = document.getElementById('input-student-3').value;
+
+            localStorage.setItem('desafio_logistica_group_v2', JSON.stringify(groupData));
+
+            updateSidebarNames();
+            updateStudentLabels();
+            updateLinkedInPreview();
+
+            const statusMsg = document.getElementById('save-status-msg');
+            statusMsg.classList.remove('opacity-0');
+            setTimeout(() => statusMsg.classList.add('opacity-0'), 2000);
+        }
+
+        function loadGroupData() {
+            const saved = localStorage.getItem('desafio_logistica_group_v2');
+            if (saved) {
+                try {
+                    groupData = JSON.parse(saved);
+                    document.getElementById('input-student-1').value = groupData.student1 || '';
+                    document.getElementById('input-student-2').value = groupData.student2 || '';
+                    document.getElementById('input-student-3').value = groupData.student3 || '';
+                    document.getElementById('link-student-1').value = groupData.link1 || '';
+                    document.getElementById('link-student-2').value = groupData.link2 || '';
+                    document.getElementById('link-student-3').value = groupData.link3 || '';
+                    
+                    updateSidebarNames();
+                    updateStudentLabels();
+                    validateLinkedInProfiles();
+                } catch(e) { console.error(e); }
+            }
+        }
+
+        function updateSidebarNames() {
+            const container = document.getElementById('sidebar-group-names');
+            const names = [groupData.student1, groupData.student2, groupData.student3].filter(n => n.trim() !== '');
+
+            if (names.length === 0) {
+                container.innerHTML = '<p class="italic text-slate-400 text-[11px]">Nenhum aluno informado</p>';
+            } else {
+                container.innerHTML = names.map(n => `<p class="flex items-center"><i class="fa-solid fa-check text-emerald-500 text-[10px] mr-1.5"></i>${n}</p>`).join('');
+            }
+        }
+
+        function updateStudentLabels() {
+            document.getElementById('label-student-name-1').innerText = groupData.student1.trim() || 'Aluno 1';
+            document.getElementById('label-student-name-2').innerText = groupData.student2.trim() || 'Aluno 2';
+            document.getElementById('label-student-name-3').innerText = groupData.student3.trim() || 'Aluno 3';
+        }
+
+        function goToStep(stepIndex) {
+            document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`step-panel-${stepIndex}`).classList.remove('hidden');
+
+            document.querySelectorAll('.step-nav-btn').forEach(btn => btn.classList.remove('step-active'));
+            const navBtn = document.getElementById(`nav-btn-${stepIndex}`);
+            if (navBtn) navBtn.classList.add('step-active');
+
+            currentStep = stepIndex;
+            document.getElementById('step-count-badge').innerText = `Etapa ${stepIndex + 1} de 11`;
+            updateGlobalProgress();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function updateGlobalProgress() {
+            const pct = Math.round(((currentStep + 1) / 11) * 100);
+            document.getElementById('global-progress-bar').style.width = `${pct}%`;
+        }
+
+        function isValidLinkedInUrl(url) {
+            if (!url) return false;
+            const cleanUrl = url.trim();
+            // Regex for valid LinkedIn profile URLs
+            const regex = /^(https?:\/\/)?(www\.)?linkedin\.com\/in\/[\w\-\%]+\/?$/i;
+            return regex.test(cleanUrl);
+        }
+
+        function validateLinkedInProfiles() {
+            const link1 = document.getElementById('link-student-1').value.trim();
+            const link2 = document.getElementById('link-student-2').value.trim();
+            const link3 = document.getElementById('link-student-3').value.trim();
+
+            groupData.link1 = link1;
+            groupData.link2 = link2;
+            groupData.link3 = link3;
+            localStorage.setItem('desafio_logistica_group_v2', JSON.stringify(groupData));
+
+            validatedLinks.link1 = isValidLinkedInUrl(link1);
+            validatedLinks.link2 = isValidLinkedInUrl(link2);
+            validatedLinks.link3 = isValidLinkedInUrl(link3);
+
+            // Update UI for Student 1
+            updateSingleLinkUI(1, link1, validatedLinks.link1);
+            // Update UI for Student 2
+            updateSingleLinkUI(2, link2, validatedLinks.link2);
+            // Update UI for Student 3
+            updateSingleLinkUI(3, link3, validatedLinks.link3);
+
+            const allThreeValid = validatedLinks.link1 && validatedLinks.link2 && validatedLinks.link3;
+
+            // Update rubric item #0 based on validation
+            rubricState[0] = allThreeValid;
+            renderRubricList();
+
+            // Toggle Grade 10 Celebration Banner
+            const certCard = document.getElementById('grade10-cert-card');
+            if (allThreeValid) {
+                if (certCard.classList.contains('hidden')) {
+                    certCard.classList.remove('hidden');
+                    triggerConfettiEffect();
+                    showToast("🎉 Todos os 3 perfis foram validados! NOTA 10,0 LIBERADA!");
+                }
+            } else {
+                certCard.classList.add('hidden');
+            }
+        }
+
+        function updateSingleLinkUI(index, url, isValid) {
+            const badge = document.getElementById(`val-badge-${index}`);
+            const icon = document.getElementById(`val-icon-${index}`);
+            const msg = document.getElementById(`val-msg-${index}`);
+
+            if (!url) {
+                badge.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600";
+                badge.innerText = "Aguardando link...";
+                icon.className = "absolute inset-y-0 right-0 pr-3 flex items-center text-slate-300";
+                icon.innerHTML = '<i class="fa-solid fa-circle-question"></i>';
+                msg.innerText = "";
+            } else if (isValid) {
+                badge.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
+                badge.innerText = "✔ Perfil Válido";
+                icon.className = "absolute inset-y-0 right-0 pr-3 flex items-center text-emerald-500 text-base";
+                icon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+                msg.className = "text-[11px] text-emerald-600 font-semibold pl-1";
+                msg.innerText = "Link do LinkedIn no formato correto!";
+            } else {
+                badge.className = "text-[11px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-800 border border-red-300";
+                badge.innerText = "✖ Link Inválido";
+                icon.className = "absolute inset-y-0 right-0 pr-3 flex items-center text-red-500 text-base";
+                icon.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
+                msg.className = "text-[11px] text-red-600 font-semibold pl-1";
+                msg.innerText = "Cole a URL completa do seu perfil no formato: linkedin.com/in/seu-nome";
+            }
+        }
+
+        function handleGroupPhotoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedGroupPhotoUrl = e.target.result;
+                    document.getElementById('group-photo-img').src = uploadedGroupPhotoUrl;
+                    document.getElementById('group-photo-preview-container').classList.remove('hidden');
+                    document.getElementById('group-photo-upload-box').classList.add('hidden');
+
+                    document.getElementById('preview-group-photo').src = uploadedGroupPhotoUrl;
+                    document.getElementById('preview-group-photo').classList.remove('hidden');
+                    document.getElementById('preview-photo-placeholder').classList.add('hidden');
+
+                    showToast("Foto do grupo atualizada com sucesso!");
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function renderThemeCards() {
+            const container = document.getElementById('themes-grid-container');
+            container.innerHTML = logisticsThemes.map(t => `
+                <div onclick="selectTheme(${t.id})" id="theme-card-${t.id}" class="theme-card border border-slate-200 hover:border-linkedin p-3.5 rounded-xl bg-white cursor-pointer transition-all flex items-start space-x-3 hover:shadow-md">
+                    <div class="bg-linkedin-light text-linkedin p-2.5 rounded-lg text-base shrink-0">
+                        <i class="fa-solid ${t.icon}"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-800">${t.title}</h4>
+                        <p class="text-[11px] text-slate-500 mt-0.5">${t.question}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectTheme(themeId) {
+            selectedTheme = logisticsThemes.find(t => t.id === themeId);
+            
+            document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('border-linkedin', 'bg-linkedin-light/30', 'ring-2', 'ring-linkedin'));
+            const selectedCard = document.getElementById(`theme-card-${themeId}`);
+            if (selectedCard) {
+                selectedCard.classList.add('border-linkedin', 'bg-linkedin-light/30', 'ring-2', 'ring-linkedin');
+            }
+
+            document.getElementById('selected-theme-banner').classList.remove('hidden');
+            document.getElementById('selected-theme-title').innerText = selectedTheme.title;
+            document.getElementById('selected-theme-question').innerText = `"${selectedTheme.question}"`;
+
+            document.getElementById('post-theme-input').value = selectedTheme.title;
+            buildPostPrompt();
+            showToast(`Tema "${selectedTheme.title}" selecionado!`);
+        }
+
+        function generateHeadlineOptions() {
+            const role = document.getElementById('headline-role-select').value;
+            const checkboxes = document.querySelectorAll('.headline-area-cb:checked');
+            const selectedAreas = Array.from(checkboxes).map(cb => cb.value);
+
+            const areaString = selectedAreas.length > 0 ? selectedAreas.join(', ') : 'Armazenagem, Estoque e Transporte';
+
+            let options = [];
+            if (role === 'estudante') {
+                options = [
+                    `Estudante de Logística | Interesse em ${areaString}`,
+                    `Estudante de Logística | Desenvolvimento Profissional | Operações e ${selectedAreas[0] || 'Estoque'}`,
+                    `Futuro Profissional de Logística | Foco em ${areaString} | Aprendizado Contínuo`
+                ];
+            } else {
+                options = [
+                    `Profissional de Logística | Operações | ${areaString}`,
+                    `Especialista em Logística | Gestão de ${selectedAreas[0] || 'Estoque'} e Processos`,
+                    `Profissional de Logística | Foco em Eficiência e ${areaString}`
+                ];
+            }
+
+            const container = document.getElementById('headline-results-container');
+            container.innerHTML = options.map((opt, idx) => `
+                <div class="bg-white p-3 rounded-xl border border-slate-200 flex items-center justify-between text-xs hover:border-linkedin transition-colors">
+                    <span id="headline-opt-${idx}" class="font-medium text-slate-800">${opt}</span>
+                    <button onclick="copyToClipboard('headline-opt-${idx}')" class="bg-slate-100 hover:bg-linkedin hover:text-white text-slate-700 font-bold px-2.5 py-1 rounded-lg transition-colors text-[11px]">
+                        Copiar
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function buildAboutPrompt() {
+            const interests = document.getElementById('about-interests-input').value.trim() || '[áreas de interesse]';
+            const qualities = document.getElementById('about-qualities-input').value.trim() || '[minhas características]';
+
+            const promptText = `"Estou criando meu perfil profissional no LinkedIn. Sou estudante de Logística e estou buscando desenvolver minha carreira na área. Tenho interesse em ${interests}. Minhas principais características são ${qualities}. Crie uma apresentação profissional curta, clara e verdadeira para a seção 'Sobre' do LinkedIn. Não invente experiências, cursos ou competências que eu não informei."`;
+
+            document.getElementById('about-prompt-box').innerText = promptText;
+        }
+
+        function buildPostPrompt() {
+            const theme = document.getElementById('post-theme-input').value.trim() || '[TEMA ESCOLHIDO]';
+            const learned = document.getElementById('post-learned-input').value.trim() || '[O QUE APRENDEMOS]';
+            const opinion = document.getElementById('post-opinion-input').value.trim() || '[NOSSA OPINIÃO/INSIGHT]';
+            const audience = document.getElementById('post-audience-input').value.trim() || 'estudantes e profissionais de logística';
+
+            const promptText = `"Somos três estudantes de Logística e estamos criando nossa primeira publicação profissional no LinkedIn. Nosso tema é ${theme}. Aprendemos que ${learned}. Nossa opinião é ${opinion}. Desejamos alcançar ${audience}. Crie uma publicação para LinkedIn com linguagem profissional, mas simples e humana. Não invente dados ou informações. Comece com uma frase que desperte curiosidade, desenvolva a ideia em poucos parágrafos e termine com uma pergunta que incentive outras pessoas a comentar. A publicação deve valorizar nossa formação em Logística."`;
+
+            document.getElementById('post-prompt-box').innerText = promptText;
+        }
+
+        function updateLinkedInPreview() {
+            const names = [groupData.student1, groupData.student2, groupData.student3].filter(n => n.trim() !== '');
+            const authorNames = names.length > 0 ? names.join(', ') : 'Aluno 1, Aluno 2 e Aluno 3';
+            document.getElementById('preview-author-names').innerText = authorNames;
+
+            const postText = document.getElementById('final-post-text-input').value.trim();
+            if (postText) {
+                document.getElementById('preview-post-body').innerText = postText;
+            } else {
+                document.getElementById('preview-post-body').innerText = "Você sabia que a organização logística pode transformar a rentabilidade de uma empresa?\n\n(Digite ou cole o texto final do grupo no campo acima para atualizar)";
+            }
+
+            const themeTag = selectedTheme ? `#${selectedTheme.title.replace(/\s+/g, '')}` : '#GestãoDeEstoque';
+            document.getElementById('preview-hashtags').innerHTML = `
+                <span>#Logística</span>
+                <span>#Educação</span>
+                <span>#Logistica</span>
+                <span>#DesenvolvimentoProfissional</span>
+                <span>#Carreira</span>
+                <span>${themeTag}</span>
+            `;
+        }
+
+        function copyFullPostText() {
+            const postText = document.getElementById('preview-post-body').innerText;
+            const themeTag = selectedTheme ? `#${selectedTheme.title.replace(/\s+/g, '')}` : '#GestãoDeEstoque';
+            const hashtags = `#Logística #Educação #Logistica #DesenvolvimentoProfissional #Carreira ${themeTag}`;
+            const mention = `@Ricardo Horning Carvalho`;
+
+            const fullContent = `${postText}\n\n${hashtags}\n\n${mention}`;
+
+            const el = document.createElement('textarea');
+            el.value = fullContent;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            showToast("Texto completo do Post copiado!");
+        }
+
+        function startTimer30() {
+            if (timer30Interval) clearInterval(timer30Interval);
+            timer30Interval = setInterval(() => {
+                if (timer30Time > 0) {
+                    timer30Time--;
+                    const secs = timer30Time < 10 ? `0${timer30Time}` : timer30Time;
+                    document.getElementById('timer-30s-display').innerText = `00:${secs}`;
+
+                    if (timer30Time <= 5) {
+                        document.getElementById('timer-30s-display').classList.add('text-red-600', 'timer-warning');
+                    }
+                } else {
+                    clearInterval(timer30Interval);
+                    document.getElementById('timer-30s-display').innerText = "TEMPO!";
+                    showToast("⏰ Tempo do Pitch encerrado!");
+                }
+            }, 1000);
+        }
+
+        function pauseTimer30() {
+            if (timer30Interval) clearInterval(timer30Interval);
+        }
+
+        function resetTimer30() {
+            if (timer30Interval) clearInterval(timer30Interval);
+            timer30Time = 30;
+            const display = document.getElementById('timer-30s-display');
+            display.innerText = "00:30";
+            display.classList.remove('text-red-600', 'timer-warning');
+        }
+
+        function startTimer2m() {
+            if (timer2mInterval) clearInterval(timer2mInterval);
+            timer2mInterval = setInterval(() => {
+                if (timer2mTime > 0) {
+                    timer2mTime--;
+                    const m = Math.floor(timer2mTime / 60);
+                    const s = timer2mTime % 60;
+                    const formatted = `0${m}:${s < 10 ? '0' : ''}${s}`;
+                    document.getElementById('timer-2m-display').innerText = formatted;
+                } else {
+                    clearInterval(timer2mInterval);
+                    document.getElementById('timer-2m-display').innerText = "FIM!";
+                    showToast("⏰ Tempo da Miniapresentação concluído!");
+                }
+            }, 1000);
+        }
+
+        function resetTimer2m() {
+            if (timer2mInterval) clearInterval(timer2mInterval);
+            timer2mTime = 120;
+            document.getElementById('timer-2m-display').innerText = "02:00";
+        }
+
+        function renderRubricList() {
+            const container = document.getElementById('rubric-items-list');
+            container.innerHTML = rubricCriteria.map(item => `
+                <label class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors">
+                    <div class="flex items-center space-x-2.5">
+                        <input type="checkbox" onchange="toggleRubricItem(${item.id})" ${rubricState[item.id] ? 'checked' : ''} class="rounded text-linkedin h-4 w-4">
+                        <span class="font-medium text-slate-800">${item.title}</span>
+                    </div>
+                    <span class="bg-white border border-slate-200 px-2 py-0.5 rounded text-[11px] font-bold text-slate-600">+${item.pts.toFixed(1)} pts</span>
+                </label>
+            `).join('');
+            calculateRubricScore();
+        }
+
+        function toggleRubricItem(id) {
+            rubricState[id] = !rubricState[id];
+            calculateRubricScore();
+        }
+
+        function calculateRubricScore() {
+            let total = 0;
+            rubricCriteria.forEach(item => {
+                if (rubricState[item.id]) total += item.pts;
+            });
+
+            const scoreStr = total.toFixed(1);
+            document.getElementById('rubric-total-score').innerText = scoreStr;
+            document.getElementById('score-counter').innerText = scoreStr;
+
+            const badgeEl = document.getElementById('rubric-rank-badge');
+            if (total === 10.0) {
+                badgeEl.innerHTML = `<i class="fa-solid fa-trophy text-amber-400"></i> NOTA 10.0 - Mestre da Logística no LinkedIn 🚀`;
+            } else if (total >= 7.0) {
+                badgeEl.innerHTML = `<i class="fa-solid fa-star text-amber-400"></i> Estrategista em Ação`;
+            } else if (total >= 4.0) {
+                badgeEl.innerHTML = `<i class="fa-solid fa-spinner text-blue-400"></i> Em Progresso`;
+            } else {
+                badgeEl.innerHTML = `<i class="fa-solid fa-seedling text-emerald-400"></i> Iniciante em Ação`;
+            }
+        }
+
+        function triggerConfettiEffect() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 120,
+                    spread: 80,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        function updateChecklistProgress() {
+            showToast("Checklist individual atualizado!");
+        }
+
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            showToast("Copiado para a área de transferência!");
+        }
+
+        function exportGroupSummary() {
+            const names = [groupData.student1, groupData.student2, groupData.student3].filter(n => n.trim() !== '');
+            const groupNamesStr = names.length > 0 ? names.join(', ') : 'Não informados';
+            const themeTitle = selectedTheme ? selectedTheme.title : 'Não selecionado';
+
+            const summaryText = `=====================================================
+RELATÓRIO OFICIAL: LOGÍSTICA + LINKEDIN + IA
+Professor Responsável: Ricardo Horning Carvalho
+=====================================================
+
+1. INTEGRANTES DO GRUPO:
+- Aluno 1: ${groupData.student1 || 'Não informado'}
+- Aluno 2: ${groupData.student2 || 'Não informado'}
+- Aluno 3: ${groupData.student3 || 'Não informado'}
+
+2. LINKS VALIDADOS DO LINKEDIN:
+- Aluno 1: ${groupData.link1 || 'Pendente'} [${validatedLinks.link1 ? 'VALIDADO' : 'NÃO VALIDAD'}]
+- Aluno 2: ${groupData.link2 || 'Pendente'} [${validatedLinks.link2 ? 'VALIDADO' : 'NÃO VALIDAD'}]
+- Aluno 3: ${groupData.link3 || 'Pendente'} [${validatedLinks.link3 ? 'VALIDADO' : 'NÃO VALIDAD'}]
+
+3. TEMA DE LOGÍSTICA SELECIONADO:
+${themeTitle}
+
+4. PUBLICAÇÃO FINAL DO GRUPO (REVISADA COM IA):
+${document.getElementById('final-post-text-input').value || 'Pendente'}
+
+5. PONTUAÇÃO FINAL CALCULADA:
+${document.getElementById('rubric-total-score').innerText} / 10.0 Pontos
+
+=====================================================
+DOCUMENTO GERADO EM: ${new Date().toLocaleString('pt-BR')}
+=====================================================`;
+
+            const blob = new Blob([summaryText], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Desafio_Logistica_Relatorio_${names[0] || 'Grupo'}.txt`;
+            link.click();
+
+            showToast("Relatório oficial em TXT baixado!");
+        }
+
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast-slide bg-slate-900 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-xl flex items-center space-x-2 border border-slate-700 pointer-events-auto';
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i><span>${message}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, 3200);
+        }
+    </script>
+</body>
+</html>
